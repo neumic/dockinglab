@@ -34,6 +34,7 @@ class LineBot:
 
 				self.right_speed = 0
 				self.left_speed = 0
+                                self.arm_speed = 0 
 
 			else:
 				print 'Could not connect to NXT brick'
@@ -56,6 +57,9 @@ class LineBot:
 	def rotate_left(self, speed):
 		self.left.run(-speed)
 		self.right.run(speed)
+        
+        def rotate_arm (self,speed):
+                arm.update(speed,89)                 
 
 	def check_dead(self):
 		if self.touch.get_sample():
@@ -104,14 +108,27 @@ class LineBot:
 			values += self.get_light_reading()
 		self.stop()
 
+        def starting_point(self): 
+                self.turn_to(NORTH) 
+                self.find_line 
+                
+           
+        def find_line(self):
+                self.arm() 
+                total = 0
+                for n in range (SAMPLE_ITERS):
+                        total += self.light.get_sample()
+                value = total / SAMPLE_ITERS
+                return value  
+                
+
 def dock(side = "left"):
 	bill = DockBot( )
-	bill.find_light( )
-	bill.approximate_location( )
-	bill.turn_to( closest_cardinal( bill.light_heading( ) ) )
+        bill.starting_point( )
 	bill.approach_wall( )
 	bill.turn_to( bill.dock_direction( ) )
 	bill.drive_till_touch( )
 	
 if __name__ == "__main__":
 	dock()
+
