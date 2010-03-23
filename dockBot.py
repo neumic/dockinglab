@@ -6,6 +6,7 @@ import nxt.locator
 from nxt.motor import *
 from nxt.sensor import *
 
+SAMPLE_ITERS = 3
 SPEED = 10
 
 def meters2tacos(x):
@@ -39,14 +40,6 @@ class LineBot:
       else:
          print 'No NXT bricks found'
 
-   def get_light_reading(self):
-      # Get SAMPLE_ITERS samples from the light senor and returns the average
-      total = 0
-      for n in range(SAMPLE_ITERS):
-         total += self.light.get_sample()
-      value = total / SAMPLE_ITERS
-      return value
-
    def go(self):
       print "Going..." + str(self.left_speed) + ":" + str(self.right_speed)
       self.right.run(self.right_speed)
@@ -79,20 +72,30 @@ class LineBot:
       self.light.set_illuminated(False)
       sleep(1)
       
-   def set_trace_speeds(self, radius):
-      half_wheel_base = 0.5 * self.wheel_base
-      left = radius + half_wheel_base
-      right = radius - half_wheel_base
-      percentage = left/right
-      self.left_speed = 50
-      self.right_speed = self.left_speed * percentage
+   def get_light_reading(self):
+		#add threading
+      # Get SAMPLE_ITERS samples from the light senor and returns the average
+      total = 0
+      for n in range(SAMPLE_ITERS):
+         total += self.light.get_sample()
+      value = total / SAMPLE_ITERS
+      return value
 
    def get_heading(self):
+		#add threading
       try:
-         return self.compass.get_sample() / 2
+			total = 0
+			for n in range(SAMPLE_ITERS):
+				total += self.light.get_sample()
+			value = total / SAMPLE_ITERS
+         return value / 2
       except:
          return -1
-
+	
+	def get_touch(self):
+		#threading
+		return 
+	
    def reading_spin(self):
       values = []
       start = self.get_heading() - 1
@@ -100,9 +103,6 @@ class LineBot:
       while self.get_heading() != start:
          values += self.get_light_reading()
       self.stop()
-
-         
-      
 
 def dock(side = "left"):
    bill = DockBot( )
