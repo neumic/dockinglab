@@ -2,6 +2,7 @@
 
 import sys
 import math
+import threading
 import nxt.locator
 from nxt.motor import *
 from nxt.sensor import *
@@ -12,6 +13,18 @@ SPEED = 10
 def meters2tacos(x):
 	#WRONG
 	return 2050 * x
+
+class thread_wait( threading.Thread ):
+	def __init__( self, condition, action):
+		threading.Thread.__init__( self )
+		self.condition = condition
+		self.action = action
+
+	def run( self ):
+		while not self.condition():
+			pass
+		self.action()
+
 
 class LineBot:
 	def __init__(self):
@@ -31,12 +44,14 @@ class LineBot:
 				self.touch= TouchSensor(self.brick, PORT_1)
 				self.compass = UltrasonicSensor(self.brick, PORT_2)
 				self.ultrasonic = UltrasonicSensor(self.brick, PORT)
+				self.sensor_lock = threading.Lock()
 
 				self.right_speed = 0
 				self.left_speed = 0
-                                self.arm_speed = 0 
+				thread_wait( self.get_touch, self.suicide )
+				self.arm_speed = 0
 
-                                self.line_color = 100 
+				self.line_color = 100
 
 			else:
 				print 'Could not connect to NXT brick'
@@ -59,17 +74,9 @@ class LineBot:
 	def rotate_left(self, speed):
 		self.left.run(-speed)
 		self.right.run(speed)
-        
-        def rotate_arm (self,speed):
-                self.arm.update(speed,00)                 
 
-	def check_dead(self):
-		if self.touch.get_sample():
-			self.suicide()
-			sleep(1)
-			while not self.touch.get_sample():
-				pass
-			self.__init__()
+	def rotate_arm (self,speed):
+		self.arm.update(speed,00)
 
 	def suicide(self):
 		#print "Dying."
@@ -100,7 +107,7 @@ class LineBot:
 
 	def get_touch(self):
 		#threading
-		return 
+		return self.touch.get_sample()
 
 	def reading_spin(self):
 		values = []
@@ -110,38 +117,37 @@ class LineBot:
 			values += self.get_light_reading()
 		self.stop()
 
-        def starting_point(self): 
-                self.turn_to(NORTH)             
-                self.arm() 
-                self.find_line 
-                self.arm() 
-           
-        def find_line(self):
-                self.go()
-                while not self.get_light_reading()< self.line_color: 
-                        pass
-                self.stop()          
-                self.go_distance (-10)             
-                
-                if value < self.line_color 
-                
-        def go_distance(self, distance):
-                #will use for the triangle bit of the finding the light position 
-                offset = self.right.get_output_state()[9]
-                distance = meters2tacos (distance) 
-                self.go()
-                while not self.right.get_output_state() >= offset + distance:
-                        pass
-                self.stop ()
-        
-                
-        def turn_to (self): 
-                
+	def starting_point(self):
+		self.turn_to(NORTH)
+		self.arm()
+		self.find_line
+		self.arm()
+		
+	def find_line(self):
+		self.go()
+		while not self.get_light_reading()< self.line_color:
+			pass
+		self.stop()
+		self.go_distance (-10)
+		
+		if value < self.line_color
+		
+	def go_distance(self, distance):
+		#will use for the triangle bit of the finding the light position
+		offset = self.right.get_output_state()[9]
+		distance = meters2tacos (distance)
+		self.go()
+		while not self.right.get_output_state() >= offset + distance:
+			pass
+		self.stop ()
+
+	def turn_to (self):
+
 
 
 def dock(side = "left"):
 	bill = DockBot( )
-        bill.starting_point( )
+	bill.starting_point( )
 	bill.approach_wall( )
 	bill.turn_to( bill.dock_direction( ) )
 	bill.drive_till_touch( )
