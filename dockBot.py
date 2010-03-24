@@ -113,7 +113,6 @@ class LineBot:
 		self.sensor_lock.release()
 		return value
 
-
 	def reading_spin(self):
 		values = []
 		start = self.get_heading() - 1
@@ -121,6 +120,7 @@ class LineBot:
 		while self.get_heading() != start:
 			values += self.get_light_reading()
 		self.stop()
+		#FINISH
 
 	def starting_point(self):
 		self.turn_to(NORTH)
@@ -152,8 +152,14 @@ class LineBot:
 		while not self.get_heading() == heading:
 			pass
 		self.stop()
-
-
+	
+	def approach_wall(self):
+		self.go()
+		#watch for wall
+		#when wall is close:
+			#slow
+		#drive_distance(small)
+		
 
 def dock(side = "left"):
 	bill = DockBot( )
