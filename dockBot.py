@@ -146,7 +146,12 @@ class LineBot:
 			pass
 		self.stop ()
 
-	def turn_to (self):
+	def turn_to (self, heading):
+		#Fix Me!
+		self.rotate_right()
+		while not self.get_heading() == heading:
+			pass
+		self.stop()
 
 
 
