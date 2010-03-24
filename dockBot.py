@@ -86,28 +86,33 @@ class LineBot:
 		sleep(1)
 		
 	def get_light_reading(self):
-		#add threading
 		# Get SAMPLE_ITERS samples from the light senor and returns the average
 		total = 0
+		self.sensor_lock.aquire()
 		for n in range(SAMPLE_ITERS):
 			total += self.light.get_sample()
+		self.sensor_lock.release()
 		value = total / SAMPLE_ITERS
 		return value
 
 	def get_heading(self):
-		#add threading
 		try:
 			total = 0
+			self.sensor_lock.aquire()
 			for n in range(SAMPLE_ITERS):
 				total += self.light.get_sample()
-			value = total / SAMPLE_ITERS
-			return value / 2
+			value = total / SAMPLE_ITERS / 2
 		except:
-			return -1
+			self.sensor_lock.release()
+			value = -1
+		return value
 
 	def get_touch(self):
-		#threading
-		return self.touch.get_sample()
+		self.sensor_lock.aquire()
+		value = self.touch.get_sample()
+		self.sensor_lock.release()
+		return value
+
 
 	def reading_spin(self):
 		values = []
