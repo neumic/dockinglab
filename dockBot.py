@@ -8,7 +8,17 @@ from nxt.motor import *
 from nxt.sensor import *
 
 SAMPLE_ITERS = 3
-SPEED = 10
+
+N		= 0
+NE		= 45
+E		= 90
+SE		= 135
+S		= 180
+SW		= 225
+W		= 270
+NW		= 315
+
+
 
 def meters2tacos(x):
 	#WRONG
@@ -46,10 +56,8 @@ class LineBot:
 				self.ultrasonic = UltrasonicSensor(self.brick, PORT)
 				self.sensor_lock = threading.Lock()
 
-				self.right_speed = 0
-				self.left_speed = 0
 				thread_wait( self.get_touch, self.suicide )
-				self.arm_speed = 0
+				self.arm_position = -1
 
 				self.line_color = 100
 
@@ -58,10 +66,9 @@ class LineBot:
 		else:
 			print 'No NXT bricks found'
 
-	def go(self):
-		print "Going..." + str(self.left_speed) + ":" + str(self.right_speed)
-		self.right.run(self.right_speed)
-		self.left.run(self.left_speed)
+	def go(self, speed=100):
+		self.right.run(self.speed)
+		self.left.run(self.speed)
 	
 	def stop(self):
 		self.left.stop()
@@ -75,8 +82,10 @@ class LineBot:
 		self.left.run(-speed)
 		self.right.run(speed)
 
-	def rotate_arm (self,speed):
-		self.arm.update(speed,00)
+	def arm_toggle (self):
+		self.arm.update(50,90 * self.arm_position)
+		self.arm_position *= -1
+		
 
 	def suicide(self):
 		#print "Dying."
@@ -114,28 +123,46 @@ class LineBot:
 		return value
 
 	def reading_spin(self):
+		self.arm_toggle()
+		sleep(0.5)
 		values = []
 		start = self.get_heading() - 1
 		self.rotate_right(10)
-		while self.get_heading() != start:
-			values += self.get_light_reading()
+		heading = self.get_heading()
+		while heading != start:
+			values += (self.get_light_reading(), heading)
+			heading = self.get_heading()
 		self.stop()
-		#FINISH
+		self.arm_toggle()
+		return values
+	
+	def data_crunch(self, list):
+		if len(list):
+			total = 0
+			for n in list:
+				total += n[0]
+			average = total / len(list)	
+		else:
+			average = 0
+		for n in list:
+			if n[0] > 20 + average:
+				return n[1]
+		return -1
 
 	def starting_point(self):
-		self.turn_to(NORTH)
-		self.arm()
-		self.find_line
-		self.arm()
+		self.turn_to(N)
+		self.find_line()
+		self.turn_to(W)
+		self.find_line()
+		self.turn_to(SE)
+		self.go_distance(math.sqrt(2) )
 		
 	def find_line(self):
 		self.go()
 		while not self.get_light_reading()< self.line_color:
 			pass
 		self.stop()
-		self.go_distance (-10)
-		
-		if value < self.line_color
+		self.go_distance(-0.05)
 		
 	def go_distance(self, distance):
 		#will use for the triangle bit of the finding the light position
@@ -164,6 +191,10 @@ class LineBot:
 def dock(side = "left"):
 	bill = DockBot( )
 	bill.starting_point( )
+	light_location = bill.crunch_data(bill.reading_spin() )
+	if side == "left":
+		bill.turn_to(
+	bill.turn_to(light_location)
 	bill.approach_wall( )
 	bill.turn_to( bill.dock_direction( ) )
 	bill.drive_till_touch( )
