@@ -202,12 +202,16 @@ def dock(side = "left"):
 	light_location = bill.crunch_data(bill.reading_spin() )
 	if side == "left":
 		bill.turn_to((bill.nearest_cardinal_direction(light_location)-45)% 360))
-        else: 
+        else: #turning to the right 
                 bill.turn_to((bill.nearest_cardinal_direction(light_location)+45)% 360))
-
-	bill.approach_wall( )
-	bill.turn_to( bill.dock_direction( ) )
-	bill.drive_till_touch( )
+        bill.go_distance(0.3)
+        bill.turn_to(bill.nearest_cardinal_direction(light_location))
+	bill.approach_wall( )	
+        if side == "left":
+		bill.turn_to((bill.nearest_cardinal_direction(light_location)+90)% 360))
+        else: #turning to the right 
+                bill.turn_to((bill.nearest_cardinal_direction(light_location)-90)% 360))
+	bill.go(50)
 	
 if __name__ == "__main__":
 	dock()
