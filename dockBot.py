@@ -186,15 +186,25 @@ class LineBot:
 		#when wall is close:
 			#slow
 		#drive_distance(small)
-		
-
+	
+        def nearest_cardinal_direction(self,n):
+                x = n % 90 
+                if x <= 45:
+                        return n - x 
+                else:
+                        return n + (90 - x)
+                
+                
+        
 def dock(side = "left"):
 	bill = DockBot( )
 	bill.starting_point( )
 	light_location = bill.crunch_data(bill.reading_spin() )
 	if side == "left":
-		bill.turn_to(
-	bill.turn_to(light_location)
+		bill.turn_to((bill.nearest_cardinal_direction(light_location)-45)% 360))
+        else: 
+                bill.turn_to((bill.nearest_cardinal_direction(light_location)+45)% 360))
+
 	bill.approach_wall( )
 	bill.turn_to( bill.dock_direction( ) )
 	bill.drive_till_touch( )
