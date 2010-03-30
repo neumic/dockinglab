@@ -15,7 +15,7 @@ NE		= 45
 E		= 90
 SE		= 135
 S		= 180
-SW		= 225
+SW		= 22
 W		= 270
 NW		= 315
 
@@ -70,10 +70,10 @@ class DockBot:
 		else:
 			print 'No NXT bricks found'
 
-	def go(self, speed= -128):
+	def go(self, speed= 128):
 		self.sensor_lock.acquire()
-		self.right.run(speed)
-		self.left.run(speed)
+		self.right.run(-speed)
+		self.left.run(-speed)
 		self.sensor_lock.release()
 	
 	def stop(self):
@@ -163,8 +163,7 @@ class DockBot:
 		return value
 	
 	def on_line(self):
-		return self.get_light_reading() < self.line_color
-		
+		return self.get_light_reading() < self.line_color()
 
 	def reading_spin(self):
 		self.arm_toggle()
@@ -238,7 +237,12 @@ class DockBot:
 	
 	def approach_wall(self):
 		self.go()
-		#while not get
+		while not self.get_distance() < 30:
+			pass
+		self.go(50)
+		while not self.get_distance()< 10:
+			pass
+		self.stop()  
 		#when wall is close:
 			#slow
 		#drive_distance(small)
