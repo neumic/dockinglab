@@ -228,11 +228,11 @@ class DockBot:
 
 	def turn_to (self, heading):
 		relative_heading = self.get_relative_heading(heading)
-		while abs(relative_heading) > 5:
+		while abs(relative_heading) > 3:
 			if relative_heading < 0:
-				self.rotate_right(20)
+				self.rotate_right(10)
 			else:
-				self.rotate_left(20)
+				self.rotate_left(10)
 			relative_heading = self.get_relative_heading(heading)
 		self.stop()
 	
@@ -270,6 +270,17 @@ def dock(side = "left"):
 	finally:
 		bill.stop()
 	
+def test():
+	bob = DockBot()
+	bob.turn_to(N)
+	sleep(5)
+	bob.turn_to(E)
+	sleep(5)
+	bob.turn_to(S)
+	sleep(5)
+	bob.turn_to(W)
+	exit()
+	
 if __name__ == "__main__":
-	dock()
+	test()
 
